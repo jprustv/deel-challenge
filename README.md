@@ -124,3 +124,37 @@ When you have finished the assignment, create a github repository and send us th
   
 
 Thank you and good luck! 🙏
+
+# Critique
+
+In this section I'll be providing some insights about what I did and what I could have done if I'd invest more time into this.
+
+## Documentation
+
+I would implement Swagger for documenting the endpoints. I have also added a (simple) Postman collection.
+
+## Code quality
+
+I would implement ESLint rules to enforce code quality.
+
+## Containerization
+
+Something that I would do next is implement Docker and Docker Compose to allow the containerization and making the project less dependent on the developer's machine.
+
+## Scaling
+
+Thinking of a production environment, I would cluster the application. I would have the main process forking some child processes. It would allow for more parallel processing of requests.
+
+But one could also create more virtual machines with the application running and then implement a load balancer at DNS level, increasing the amount of processes able to handle requests too.
+
+## Caching
+
+To give faster API responses, I would implement a Redis cache server, so that whenever it is possible, we would return it from this In-Memory database instead of querying the database again.
+
+## Error Handling
+
+Something I know that this application is missing is proper error handling, so I would create an error handler middleware to treat errors better.
+
+## Logging and Monitoring
+
+Another missing thing here is proper monitoring of the application. We could implement Datadog for Logging and Monitoring of application metrics and errors.
