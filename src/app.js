@@ -86,11 +86,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
         },
         include: {
             model: Contract,
-            where: {
-                [Op.or]: [
-                    {ClientId: req.profile.id},
-                ],
-            }
+            where: { ClientId: req.profile.id }, 
         }
     })
 
