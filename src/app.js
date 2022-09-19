@@ -52,7 +52,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
  */
  app.get('/jobs/unpaid',getProfile ,async (req, res) =>{
     const {Job, Contract} = req.app.get('models')
-    const job = await Job.findAll({
+    const jobs = await Job.findAll({
         where : {
             paid: null,
         },
@@ -69,8 +69,8 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
             }
         ]
     })
-    if(!job) return res.status(404).end()
-    res.json(job)
+    if(!jobs) return res.status(404).end()
+    res.json(jobs)
 })
 
 module.exports = app;
