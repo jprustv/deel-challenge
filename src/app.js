@@ -32,7 +32,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
  */
  app.get('/contracts',getProfile ,async (req, res) =>{
     const {Contract} = req.app.get('models')
-    const contract = await Contract.findAll({
+    const contracts = await Contract.findAll({
         where : {
             status: {
                 [Op.not] : 'terminated',
@@ -43,8 +43,8 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
             ]
         },
     })
-    if(!contract) return res.status(404).end()
-    res.json(contract)
+    if(!contracts) return res.status(404).end()
+    res.json(contracts)
 })
 
 module.exports = app;
