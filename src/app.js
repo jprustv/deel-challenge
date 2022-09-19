@@ -171,4 +171,46 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
     });
 })
 
+/**
+ * @returns status of the deposit operation
+ */
+ app.post('/balances/deposit/:client_id/:deposit_value',getProfile ,async (req, res) =>{
+    const {Job, Contract} = req.app.get('models');
+    const {client_id, deposit_value} = req.params;
+
+    if (parseInt(client_id) !== req.profile.id) {
+        return res.status(400).json({
+            status: 'Error',
+            message: 'Cannot deposit for another client',
+        });
+    }
+
+    const totalJobsPending = await Job.sum('price', {
+        where: {
+            paid: null,
+        },
+        include: {
+            model: Contract,
+            where: { ClientId: client_id },            
+        }
+    });
+
+    const maxDepositAllowed = totalJobsPending * 0.25;
+
+    if (parseInt(deposit_value) > maxDepositAllowed) {
+        return res.status(400).json({
+            status: 'Error',
+            message: 'Deposit limit exceeded',
+        });
+    }
+
+    req.profile.balance = req.profile.balance + parseInt(deposit_value);
+    
+    await req.profile.save();
+    
+    res.json({
+        status: 'Ok',
+        message: 'Balance updated.',
+    });
+ })
 module.exports = app;
