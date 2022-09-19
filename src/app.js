@@ -266,4 +266,60 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
     res.json(jobs);
 })
 
+/**
+ * @returns the client that paid the most for jobs
+ */
+ app.get('/admin/best-clients',getProfile ,async (req, res) =>{
+    const {Job, Contract, Profile} = req.app.get('models')
+
+    const infinity = 8640000000000000;
+
+    const {start = new Date(infinity * -1), end = new Date(infinity)} = req.query;
+
+    const jobs = await Job.findAll({
+        attributes: [
+            'Contract.Client.id',
+            [sequelize.literal("firstName || ' ' || lastName"), 'fullName'] , 
+            [sequelize.fn('sum', sequelize.col('Price')), 'paid']
+        ],
+        where : {
+            paid: {
+                [Op.not] : null,
+            },
+            paymentDate: {
+                [Op.between] : [start, end],
+            }
+        },
+        include: [
+            {
+                model: Contract,
+                required: true,
+                attributes: [],
+                include: [
+                    {
+                        model: Profile,
+                        as: 'Client',
+                        required: true,
+                        attributes: [],
+                    },
+                ]
+            },
+        ],
+        group : ['fullName'],
+        raw: true,
+        order: [
+            ['paid', 'DESC'],
+        ],
+    });
+
+    if (!jobs) {
+        return res.status(404).json({
+            status: 'Error',
+            message: 'No data found',
+        })
+    }
+
+    res.json(jobs);
+})
+
 module.exports = app;
