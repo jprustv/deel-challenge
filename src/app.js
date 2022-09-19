@@ -213,4 +213,57 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
         message: 'Balance updated.',
     });
  })
+
+/**
+ * @returns the profession that earned the most
+ */
+ app.get('/admin/best-profession',getProfile ,async (req, res) =>{
+    const {Job, Contract, Profile} = req.app.get('models')
+
+    const infinity = 8640000000000000;
+
+    const {start = new Date(infinity * -1), end = new Date(infinity)} = req.query;
+
+    const jobs = await Job.findOne({
+        attributes: ['Contract.Contractor.profession' , [sequelize.fn('sum', sequelize.col('Price')), 'earnings']],
+        where : {
+            paid: {
+                [Op.not] : null,
+            },
+            paymentDate: {
+                [Op.between] : [start, end],
+            }
+        },
+        include: [
+            {
+                model: Contract,
+                required: true,
+                attributes: [],
+                include: [
+                    {
+                        model: Profile,
+                        as: 'Contractor',
+                        required: true,
+                        attributes: [],
+                    },
+                ]
+            },
+        ],
+        group : ['profession'],
+        raw: true,
+        order: [
+            ['earnings', 'DESC'],
+        ],
+    });
+
+    if (!jobs) {
+        return res.status(404).json({
+            status: 'Error',
+            message: 'No data found',
+        })
+    }
+
+    res.json(jobs);
+})
+
 module.exports = app;
